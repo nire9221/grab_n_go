@@ -1,10 +1,11 @@
 import sys
-sys.path.insert(0, './yolov5_deepSORT/yolov5')
-from yolov5_deepSORT.yolov5.utils.datasets import LoadImages, LoadStreams, LoadRealsense
-from yolov5_deepSORT.yolov5.utils.general import check_img_size, non_max_suppression, scale_coords
-from yolov5_deepSORT.yolov5.utils.torch_utils import select_device, time_synchronized
-from yolov5_deepSORT.deepsort.utils.parser import get_config
-from yolov5_deepSORT.deepsort.deep_sort import DeepSort
+sys.path.insert(0, './yolov5')
+
+from yolov5.utils.datasets import LoadImages, LoadStreams, LoadRealsense
+from yolov5.utils.general import check_img_size, non_max_suppression, scale_coords
+from yolov5.utils.torch_utils import select_device, time_synchronized
+from deep_sort_pytorch.utils.parser import get_config
+from deep_sort_pytorch.deep_sort import DeepSort
 import argparse
 import os
 import platform
@@ -20,26 +21,15 @@ import multiprocessing as mp
 import pyrealsense2.pyrealsense2 as rs
 #Pytorch-openpose
 # sys.path.append(os.path.dirname(os.path.abspath()))
-from pose_estimation.models.with_mobilenet import PoseEstimationWithMobileNet
-from pose_estimation.modules.keypoints import extract_keypoints, group_keypoints
-from pose_estimation.modules.load_state import load_state
-from pose_estimation.modules.pose import Pose, track_poses
-from pose_estimation.val import normalize, pad_width
-import DBConn as db
+from lightweight_human_pose_estimation.models.with_mobilenet import PoseEstimationWithMobileNet
+from lightweight_human_pose_estimation.modules.keypoints import extract_keypoints, group_keypoints
+from lightweight_human_pose_estimation.modules.load_state import load_state
+from lightweight_human_pose_estimation.modules.pose import Pose, track_poses
+from lightweight_human_pose_estimation.val import normalize, pad_width
+from DBConn import DB_Connection 
+import timeit
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
-
-
-# def load_coco():
-#     with open('/home/erin/Documents/project/ContactFree_Store_System/yolov5/data/coco.yaml') as f:
-#     loaded_file = yaml.load(f, Loader=yaml.FullLoader)
-#     print(cars_original)
-
-#     # sorting by value in ascending order
-#     for key, value in sorted(loaded_file.items(), key = lambda item: item[1]):
-#         print(key, ':', value)
-
-
 
 
 def bbox_rel(*xyxy):
@@ -162,19 +152,17 @@ def detect(opt, net, save_img=False):
     people = {}
     count_o = 0
     objects = {}
+    customer_id = 0
+    customer_name = ''
+    product_id = 0
+    product_name = ''
 
+    db = DB_Connection()
     frame_num=0
-    # customer_id = db.get_track_id()
-    customer_id = 10
     
     for frame_idx, (path, img, im0s, vid_cap) in enumerate(dataset):
+        start_t = timeit.default_timer()
         frame_num+=1
-        # print ('img shape222', img.shape) #736 1280
-        # print ('im0s shape', im0s.shape) #720 1280
-        # im0s= im0s.reshape(opt.img_size,opt.height_size)
-        # print ('im0s type',im0s)
-        # print('im0s shape',im0s.shape)
-
         #convert 
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -182,12 +170,9 @@ def detect(opt, net, save_img=False):
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
-
-        # print('img size3333', img.shape)
         # Inference
         t1 = time_synchronized()
         pred = model(img, augment=opt.augment)[0]
-
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms) # classes=opt.classes
         t2 = time_synchronized()
@@ -195,7 +180,7 @@ def detect(opt, net, save_img=False):
         # Process detections
         for i, det in enumerate(pred):  # detections per image
         # for i, det in enumerate(pred):  # detections per image
-            if realsense:  # batch_size >= 1
+            if webcam or realsense:  # batch_size >= 1
                 p, s, im0 = path[i], '%g: ' % i, im0s[i].copy()
             else:
                 p, s, im0 = path, '', im0s
@@ -205,7 +190,6 @@ def detect(opt, net, save_img=False):
             if det is not None and len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
-                # print('====================================================================')
                 # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
@@ -222,7 +206,6 @@ def detect(opt, net, save_img=False):
                     bbox_xywh.append(obj)
                     confs.append([conf.item()])
                     classes.append([cls.item()])
-
 
                 xywhs = torch.Tensor(bbox_xywh)
                 confss = torch.Tensor(confs)
@@ -260,9 +243,10 @@ def detect(opt, net, save_img=False):
             # Print time (inference + NMS)
             # print('%sDone. (%.3fs)' % (s, 1 / t2 - t1))
 
-############################## openpose ###################################
-        im0 = np.asarray(im0) # 720 1280
-        orig_img = im0.copy() #720 1280
+#################################### openpose ############################################
+        #im0 = im0.tolist()  => if webcam
+        im0 = np.asarray(im0) 
+        orig_img = im0.copy() 
         heatmaps, pafs, scale, pad = infer_fast(net, im0s[0], height_size, stride, upsample_ratio, cpu) #720 1280
 
         total_keypoints_num = 0
@@ -275,6 +259,8 @@ def detect(opt, net, save_img=False):
             all_keypoints[kpt_id, 0] = (all_keypoints[kpt_id, 0] * stride / upsample_ratio - pad[1]) / scale
             all_keypoints[kpt_id, 1] = (all_keypoints[kpt_id, 1] * stride / upsample_ratio - pad[0]) / scale
 
+        ###### wrist ######
+        current_wrists = []
         current_poses = []
         for n in range(len(pose_entries)):
             if len(pose_entries[n]) == 0:
@@ -286,11 +272,12 @@ def detect(opt, net, save_img=False):
                     pose_keypoints[kpt_id, 1] = int(all_keypoints[int(pose_entries[n][kpt_id]), 1])
             pose = Pose(pose_keypoints, pose_entries[n][18])
 
-##################### comparing btw pose id & detected id  #########################
+######################### comparing btw pose id & detected id  ##############################
             if det is not None and len(det):
                 for o in outputs:
                     xyxy = o[:4]
                     class_id = o[-1]
+                    track_id = o[4:5] ## added ##
                     if class_id == 0: # 사람일때 모든 사람의 중심 좌표와 맞나 검사
                         x1 = int(pose.bbox[0]) + int(pose.bbox[2]/2)
                         y1 = int(pose.bbox[1]) + int(pose.bbox[3]/2)
@@ -298,6 +285,10 @@ def detect(opt, net, save_img=False):
                         y2 = xyxy[1] + int((xyxy[3] - xyxy[1]) / 2)
                         if cal_dist(x1, y1, x2, y2) < 70: # 두개의 객체가 사람일시 좌표값으로 동일한 객체인지 체크
                             current_poses.append(pose)
+                            ### added ###
+                            wrists = pose.draw(im0s[0])
+                            current_wrists.append([track_id, wrists])
+        # print('current_wrists',current_wrists)
 
 
 ########################### 카트에 물건을 담을때 쓰일 모든 기능들 ###########################
@@ -305,9 +296,9 @@ def detect(opt, net, save_img=False):
             track_poses(previous_poses, current_poses, smooth=smooth)
             previous_poses = current_poses
 
-        for pose in current_poses:
-            wrists = pose.draw(im0s[0])
-
+        # for pose in current_poses:
+        #     wrists = pose.draw(im0s[0])
+     
             if det is not None and len(det):
                 if len(outputs) > 0:
                     class_id = outputs[:,-1]
@@ -315,9 +306,9 @@ def detect(opt, net, save_img=False):
                     count_O = np.count_nonzero(class_id) # 사람 아닌것만 카운트
                     print('사람숫자:  ', count_p)
                     print('물건숫자:  ', count_O)
-
+             
                     ########################### 사람과 물건을 딕셔너리에 삽입 ##############################
-                    ###### 사람만있는 어레이를 만듬
+                    ######## 사람만있는 어레이를 만듬
                     p_list = []
                     people_copy = {}
                     [p_list.append(i) for i, outp in enumerate(outputs) if outp[-1] != 0]
@@ -325,9 +316,12 @@ def detect(opt, net, save_img=False):
 
                     ######## 사람의 수가 증가시
                     if count_P > count_p:
+                        #get checked in user id 
+                        customer_id = db.select_user()
+                        customer_name = db.get_username(customer_id)
                         if count_p == 0:
-                            for p_output in p_outputs:
-                                people.setdefault(int(p_output[4:5]))
+                            for p_output, wrist in zip(p_outputs, current_wrists): #for 문하나 더써서 넣기
+                                people.setdefault(int(p_output[4:5]), [customer_id,])
                             count_p = count_P
                         else:
                             for p in people: # 새로운 사람들을 딕셔너리에 카피
@@ -336,7 +330,7 @@ def detect(opt, net, save_img=False):
                                         people_copy.setdefault(int(outp[4:5]))
                             #카피된 딕셔너리를 사람들에 넣기
                             for p in people_copy:
-                                people.setdefault(p)
+                                people.setdefault(p,customer_id)
                             count_p = count_P
                     elif count_P < count_p: # 사람수 감소시
                         k_list = p_outputs[:, 4:5]
@@ -356,10 +350,16 @@ def detect(opt, net, save_img=False):
 
                     ##### 물건수 증가시
                     if count_O > count_o:
+                        #get product name
+                        # product_id = db.select_product()
+                        # product_name = db.get_productname(product_id)
                         # 물건이 하나도 없다가 카메라에 잡힐경우 모두 집어 넣기
                         if count_o == 0: 
                             for o in o_outputs:
-                                objects.setdefault(int(o[4:5]),o[-1])  # must insert customerId with DB
+                                objects.setdefault(int(o[4:5]),o[-1]) 
+                                # insert customerId with DB
+                                # insert_cart(customer_id,product_id,count_o)
+                                print('count o type', type(count_o))
                             count_o = count_O
                         # 물건이 증가
                         else: 
@@ -385,6 +385,9 @@ def detect(opt, net, save_img=False):
                     print('objects objects objects ', objects)
                 else:
                     pass
+            
+                # cv2.putText(im0, 'person count: {}'.format(count_p), (480,700), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
+                # cv2.putText(im0, 'object count: {}'.format(count_O), (480,750), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
 
             img = cv2.addWeighted(orig_img, 0.6, im0s[0], 0.4, 0) #720 1280
             idx = 0
@@ -393,34 +396,28 @@ def detect(opt, net, save_img=False):
                 # cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),(pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (255, 255, 0),2)
                 cv2.circle(img, (int(pose.bbox[0]) + int(pose.bbox[2]/2), int(pose.bbox[1]) + int(pose.bbox[3]/2)), 10, (0, 255, 0), -1) # test
                 #track id list 
-                track_ids =[]
                 if track:
-                    ############################ db ########################
-                    #give track id (customer id)
-                    db.update_entered_status(customer_id)
-                    #get customer name based on customer id
-                    customer_name=db.get_customername(customer_id)
-                    #list up customer id on tracking
-                    track_ids.append(customer_id)
-                    # print('customer_id',customer_id)
-                    pose_id = pose.id
-                    pose_id = customer_id 
+                    pose.id = customer_id
+                    print('pose.id',pose.id)
                     # tracked person id (left top)
                     # cv2.putText(img, 'person id: {} is being tracked '.format(pose.id), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
-                    cv2.putText(img, 'customer id: {} is being tracked '.format(pose_id), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
+                    cv2.putText(img, 'customer {}: {} is being tracked '.format(pose.id, customer_name), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
                     idx+=20
                 #person id (above bbx)
                 # cv2.putText(img, 'id: {} '.format(pose.id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
-                    cv2.putText(img, 'id: {} '.format(pose_id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+                    cv2.putText(img, 'id: {} '.format(pose.id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
 
-############## result #################
+################# result #################
+            terminate_t = timeit.default_timer()
             result = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             cv2.imshow('Grab_N_Go', result)
+            FPS=int(1./(terminate_t-start_t))
+            print('FPS',FPS)
 
     print('Done. (%.3fs)' % (time.time() - t0))
 
 
-###########################################################################################################################################################################################
+#######################################################################################################################
 
 def infer_fast(net, img, net_input_height_size, stride, upsample_ratio, cpu,
                pad_value=(0, 0, 0), img_mean=np.array([128, 128, 128], np.float32), img_scale=np.float32(1/256)):
@@ -455,7 +452,7 @@ def cal_dist(x1,y1,x2,y2):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str,
-                        default='yolov5_deepSORT/yolov5/weights/yolov5x.pt', help='model.pt path')
+                        default='yolov5/weights/yolov5x.pt', help='model.pt path')
     # file/folder, 0 for webcam
     parser.add_argument('--source', type=str,
                         default='realsense', help='source')
@@ -485,9 +482,9 @@ if __name__ == '__main__':
     parser.add_argument('--augment', action='store_true',
                         help='augmented inference')
     parser.add_argument("--config_deepsort", type=str,
-                        default="yolov5_deepSORT/deepsort/configs/deep_sort.yaml")
+                        default="deep_sort_pytorch/configs/deep_sort.yaml")
     # Pytorch-openpose
-    parser.add_argument('--checkpoint-path', type=str, default='pose_estimation/checkpoint/checkpoint_iter_370000.pth', help='path to the checkpoint')
+    parser.add_argument('--checkpoint-path', type=str, default='lightweight_human_pose_estimation/checkpoint/checkpoint_iter_370000.pth', help='path to the checkpoint')
     parser.add_argument('--height-size', type=int, default=256, help='network input layer height size')
     parser.add_argument('--video', type=str, default='0', help='path to video file or camera id')
     parser.add_argument('--images', nargs='+', default='', help='path to input image(s)')
