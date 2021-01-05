@@ -74,6 +74,13 @@ def draw_boxes(img, bbox, identities=None, offset=(0, 0)):
 
     return img
 
+def coco_classname ():
+    with open('/home/erin/Documents/project/ContactFree_Store_System/yolov5/data/coco.yaml') as fp :
+        cfg=yaml.safe_load(fp) 
+        for key, value in cfg.items():
+            if key == 'names' :
+                return value
+
 
 def detect(opt, net, save_img=False):
     out, source, weights, view_img, save_txt, imgsz, height_size, cpu, track, smooth = opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, opt.height_size, opt.cpu, opt.track, opt.smooth
@@ -155,6 +162,8 @@ def detect(opt, net, save_img=False):
     customer_name = ''
     product_id = 0
     product_name = ''
+    class_name = coco_classname()
+
 
     db = DB_Connection()
     frame_num=0
@@ -395,7 +404,7 @@ def detect(opt, net, save_img=False):
                 # cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),(pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (255, 255, 0),2)
                 cv2.circle(img, (int(pose.bbox[0]) + int(pose.bbox[2]/2), int(pose.bbox[1]) + int(pose.bbox[3]/2)), 10, (0, 255, 0), -1) # test
                 #track id list 
-                if track:
+                if track and class_name == 'person':
                     pose.id = customer_id
                     print('pose.id',pose.id)
                     # tracked person id (left top)
