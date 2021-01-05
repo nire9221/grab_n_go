@@ -1,11 +1,10 @@
 import sys
-sys.path.insert(0, './yolov5')
-
-from yolov5.utils.datasets import LoadImages, LoadStreams, LoadRealsense
-from yolov5.utils.general import check_img_size, non_max_suppression, scale_coords
-from yolov5.utils.torch_utils import select_device, time_synchronized
-from deep_sort_pytorch.utils.parser import get_config
-from deep_sort_pytorch.deep_sort import DeepSort
+sys.path.insert(0, './yolov5_deepSORT/yolov5')
+from yolov5_deepSORT.yolov5.utils.datasets import LoadImages, LoadStreams, LoadRealsense
+from yolov5_deepSORT.yolov5.utils.general import check_img_size, non_max_suppression, scale_coords
+from yolov5_deepSORT.yolov5.utils.torch_utils import select_device, time_synchronized
+from yolov5_deepSORT.deepsort.utils.parser import get_config
+from yolov5_deepSORT.deepsort.deep_sort import DeepSort
 import argparse
 import os
 import platform
@@ -21,11 +20,11 @@ import multiprocessing as mp
 import pyrealsense2.pyrealsense2 as rs
 #Pytorch-openpose
 # sys.path.append(os.path.dirname(os.path.abspath()))
-from lightweight_human_pose_estimation.models.with_mobilenet import PoseEstimationWithMobileNet
-from lightweight_human_pose_estimation.modules.keypoints import extract_keypoints, group_keypoints
-from lightweight_human_pose_estimation.modules.load_state import load_state
-from lightweight_human_pose_estimation.modules.pose import Pose, track_poses
-from lightweight_human_pose_estimation.val import normalize, pad_width
+from pose_estimation.models.with_mobilenet import PoseEstimationWithMobileNet
+from pose_estimation.modules.keypoints import extract_keypoints, group_keypoints
+from pose_estimation.modules.load_state import load_state
+from pose_estimation.modules.pose import Pose, track_poses
+from pose_estimation.val import normalize, pad_width
 from DBConn import DB_Connection 
 import timeit
 
@@ -452,7 +451,7 @@ def cal_dist(x1,y1,x2,y2):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str,
-                        default='yolov5/weights/yolov5x.pt', help='model.pt path')
+                        default='yolov5_deepSORT/yolov5/weights/yolov5x.pt', help='model.pt path')
     # file/folder, 0 for webcam
     parser.add_argument('--source', type=str,
                         default='realsense', help='source')
@@ -482,9 +481,9 @@ if __name__ == '__main__':
     parser.add_argument('--augment', action='store_true',
                         help='augmented inference')
     parser.add_argument("--config_deepsort", type=str,
-                        default="deep_sort_pytorch/configs/deep_sort.yaml")
+                        default="yolov5_deepSORT/deepsort/configs/deep_sort.yaml")
     # Pytorch-openpose
-    parser.add_argument('--checkpoint-path', type=str, default='lightweight_human_pose_estimation/checkpoint/checkpoint_iter_370000.pth', help='path to the checkpoint')
+    parser.add_argument('--checkpoint-path', type=str, default='pose_estimation/checkpoint/checkpoint_iter_370000.pth', help='path to the checkpoint')
     parser.add_argument('--height-size', type=int, default=256, help='network input layer height size')
     parser.add_argument('--video', type=str, default='0', help='path to video file or camera id')
     parser.add_argument('--images', nargs='+', default='', help='path to input image(s)')
