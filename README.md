@@ -1,6 +1,6 @@
 # grab_n_go
 
-YOLOv5 + deepSORT + OpenPose 
+YOLOv5 + deepSORT + OpenPose + Oracle DB
 </br>
 model : https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing
 
