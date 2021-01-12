@@ -48,7 +48,7 @@ class Pose:
 
     def draw(self, img):
         assert self.keypoints.shape == (Pose.num_kpts, 2)
-        writs = {}
+        writs = []
 
         for part_id in range(len(BODY_PARTS_PAF_IDS) - 2):
             kpt_a_id = BODY_PARTS_KPT_IDS[part_id][0]
@@ -69,12 +69,10 @@ class Pose:
                 # cv2.circle(img, (int(x_b), int(y_b)), 15, (255, 0, 0), -1)
                 if kpt_b_id == 4:
                     cv2.circle(img, (int(x_b), int(y_b)), 10, (255, 0, 0), -1)
-                    print('rrrrrrrrrrrrhhhhhhhhhhh', x_b, y_b)
-                    writs.setdefault('r_wri',[x_b,y_b])
+                    writs.append([x_b,y_b])
                 elif kpt_b_id == 7:
                     cv2.circle(img, (int(x_b), int(y_b)), 10, (255, 0, 0), -1)
-                    print('llllllllllllllrhhhhhhhhhhh', x_b, y_b)
-                    writs.setdefault('l_wri',[x_b,y_b])
+                    writs.append([x_b,y_b])
                 else:
                     cv2.circle(img, (int(x_b), int(y_b)), 3, Pose.color, -1)
             if global_kpt_a_id != -1 and global_kpt_b_id != -1:
@@ -97,7 +95,6 @@ def track_poses(previous_poses, current_poses, threshold=3, smooth=False):
     """Propagate poses ids from previous frame results. Id is propagated,
     if there are at least `threshold` similar keypoints between pose from previous frame and current.
     If correspondence between pose on previous and current frame was established, pose keypoints are smoothed.
-
     :param previous_poses: poses from previous frame with ids
     :param current_poses: poses from current frame to assign ids
     :param threshold: minimal number of similar keypoints between poses
