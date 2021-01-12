@@ -158,13 +158,7 @@ def detect(opt, net, save_img=False):
     people = {}
     count_o = 0
     objects = {}
-    customer_id = 0
-    customer_name = ''
-    product_id = 0
-    product_name = ''
-    class_name = coco_classname()
-
-
+    #DB load
     db = DB_Connection()
     frame_num=0
     
@@ -182,7 +176,7 @@ def detect(opt, net, save_img=False):
         t1 = time_synchronized()
         pred = model(img, augment=opt.augment)[0]
         # Apply NMS
-        pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms) # classes=opt.classes
+        pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms) 
         t2 = time_synchronized()
 
         # Process detections
@@ -206,7 +200,7 @@ def detect(opt, net, save_img=False):
                 bbox_xywh = []
                 confs = []
                 classes = []
-
+                
                 # Adapt detections to deep sort input format
                 for *xyxy, conf, cls in det:
                     x_c, y_c, bbox_w, bbox_h = bbox_rel(*xyxy)
@@ -226,7 +220,7 @@ def detect(opt, net, save_img=False):
                 # detections = [Detection(bbox_tlwh[i], conf, features[i], classes[i]) for i, conf in enumerate(
                 #     confidences) if conf > self.min_confidence]
                 # entity = [ if ]
-
+                print('------------------ output -------------', outputs)
                 # draw boxes for visualization
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
@@ -268,8 +262,9 @@ def detect(opt, net, save_img=False):
             all_keypoints[kpt_id, 1] = (all_keypoints[kpt_id, 1] * stride / upsample_ratio - pad[0]) / scale
 
         ###### wrist ######
-        current_wrists = []
         current_poses = []
+        current_wrists = []
+        current_objects = []
         for n in range(len(pose_entries)):
             if len(pose_entries[n]) == 0:
                 continue
@@ -285,7 +280,8 @@ def detect(opt, net, save_img=False):
                 for o in outputs:
                     xyxy = o[:4]
                     class_id = o[-1]
-                    track_id = o[4:5] ## added ##
+                    track_id = o[4:5] 
+
                     if class_id == 0: # 사람일때 모든 사람의 중심 좌표와 맞나 검사
                         x1 = int(pose.bbox[0]) + int(pose.bbox[2]/2)
                         y1 = int(pose.bbox[1]) + int(pose.bbox[3]/2)
@@ -293,10 +289,14 @@ def detect(opt, net, save_img=False):
                         y2 = xyxy[1] + int((xyxy[3] - xyxy[1]) / 2)
                         if cal_dist(x1, y1, x2, y2) < 70: # 두개의 객체가 사람일시 좌표값으로 동일한 객체인지 체크
                             current_poses.append(pose)
-                            ### added ###
                             wrists = pose.draw(im0s[0])
                             current_wrists.append([track_id, wrists])
+                    else:
+                        x2 = xyxy[0] + int((xyxy[2] - xyxy[0]) / 2)
+                        y2 = xyxy[1] + int((xyxy[3] - xyxy[1]) / 2)
+                        current_objects.append([track_id, class_id, [x2, y2]])
         # print('current_wrists',current_wrists)
+        # print('current_objects',current_objects)
 
 
 ########################### 카트에 물건을 담을때 쓰일 모든 기능들 ###########################
@@ -306,7 +306,6 @@ def detect(opt, net, save_img=False):
 
         # for pose in current_poses:
         #     wrists = pose.draw(im0s[0])
-     
             if det is not None and len(det):
                 if len(outputs) > 0:
                     class_id = outputs[:,-1]
@@ -314,6 +313,12 @@ def detect(opt, net, save_img=False):
                     count_O = np.count_nonzero(class_id) # 사람 아닌것만 카운트
                     print('사람숫자:  ', count_p)
                     print('물건숫자:  ', count_O)
+
+                    ### 물건만 있는 어레이 만들기
+                    o_list = []
+                    objects_copy = {}
+                    [o_list.append(i) for i, outp in enumerate(outputs) if outp[-1] == 0]
+                    o_outputs = np.delete(outputs, o_list, axis=0)
              
                     ########################### 사람과 물건을 딕셔너리에 삽입 ##############################
                     ######## 사람만있는 어레이를 만듬
@@ -328,8 +333,9 @@ def detect(opt, net, save_img=False):
                         customer_id = db.select_user()
                         customer_name = db.get_username(customer_id)
                         if count_p == 0:
-                            for p_output, wrist in zip(p_outputs, current_wrists): #for 문하나 더써서 넣기
-                                people.setdefault(int(p_output[4:5]), [customer_id,])
+                            # for p_output, wrist in zip(p_outputs, current_wrists): #for 문하나 더써서 넣기
+                            for p_output in p_outputs:
+                                people.setdefault(int(p_output[4:5]), customer_id)
                             count_p = count_P
                         else:
                             for p in people: # 새로운 사람들을 딕셔너리에 카피
@@ -340,6 +346,7 @@ def detect(opt, net, save_img=False):
                             for p in people_copy:
                                 people.setdefault(p,customer_id)
                             count_p = count_P
+                        db.update_user(customer_id)
                     elif count_P < count_p: # 사람수 감소시
                         k_list = p_outputs[:, 4:5]
                         for outp in people:
@@ -347,14 +354,33 @@ def detect(opt, net, save_img=False):
                                 people_copy.setdefault(outp)
                         # 카피된 딕셔너리를 사람들에서 삭제
                         for o in list(people_copy):
-                            del people[o]
-                        count_p = count_P
+                            ###################### 검출되는 오브젝트들은 카트에 넣으면 안됨
+                            k_list = o_outputs[:,4:5]
+                            for key, val in objects.items():
+                                if key in k_list:
+                                    objects[key] = [val[0]]
+                            del_list = []
+                            ############################ 카트에 담을 키를 리스트에 담음  #################################################
+                            for key, val in objects.items():
+                                if len(val) == 2:
+                                    if val[1] == o:
+                                        del_list.append(key)
+                            print('del_list',del_list)
+                            for key in del_list:
+                                ############################### 카트에 담기
+                                val_list = objects.get(key)
+                                print('val_list',val_list)
+                                product_id = val_list[0]
+                                track_id = val_list[1]
+                                customer_id = people.get(track_id)
+                                print('customer_idproduct_id', customer_id, product_id)
+                                db.insert_into_cart(customer_id,product_id)
+                                del objects[key]
+                                print('Deleted',objects)
 
-                    ## 물건만 있는 어레이 만들기
-                    o_list = []
-                    objects_copy = {}
-                    [o_list.append(i) for i, outp in enumerate(outputs) if outp[-1] == 0]
-                    o_outputs = np.delete(outputs, o_list, axis=0)
+                            del people[o] # 사람 삭제
+                            count_o = count_O
+                        count_p = count_P
 
                     ##### 물건수 증가시
                     if count_O > count_o:
@@ -367,7 +393,7 @@ def detect(opt, net, save_img=False):
                                 objects.setdefault(int(o[4:5]),o[-1]) 
                                 # insert customerId with DB
                                 # insert_cart(customer_id,product_id,count_o)
-                                print('count o type', type(count_o))
+                                # print('count o type', type(count_o))
                             count_o = count_O
                         # 물건이 증가
                         else: 
@@ -378,24 +404,32 @@ def detect(opt, net, save_img=False):
                             for k, v in objects_copy.items():
                                 objects.setdefault(k, v)
                             count_o = count_O
-                    ###### 물건수 감소시
-                    elif count_O < count_o: 
-                        k_list = o_outputs[:,4:5]
-                        for outp in objects:
-                            if outp not in k_list:
-                                objects_copy.setdefault(outp)
-                                # db.remove_item()
-                        # 카피된 딕셔너리를 사람들에서 삭제
-                        for o in list(objects_copy):
-                            del objects[o]
-                        count_o = count_O
                     print('people people people ', people)
                     print('objects objects objects ', objects)
+
                 else:
                     pass
             
                 # cv2.putText(im0, 'person count: {}'.format(count_p), (480,700), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
                 # cv2.putText(im0, 'object count: {}'.format(count_O), (480,750), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
+            ################ 좌표 점으로 손과 물체의 거리 인식
+            if len(current_objects) > 0:
+                # current_wrists [[array([1]), [[388, 476],[388, 476]]]]
+                # current_objects[[array([2]), [242, 328]]]
+                for object in current_objects:
+                    if len(current_objects) > 0:
+                        for person in current_wrists:
+                            o_track_id = int(object[0])
+                            o_class_id = int(object[1])
+                            xy = object[2]
+                            # print('xy', xy)
+                            p_track_id = int(person[0])
+                            wrists_list = person[1]
+                            for wri in wrists_list: #손이 둘다 아니면 하나만 잡혔을 시
+                                # print('wri',wri)
+                                if cal_dist(xy[0],xy[1],wri[0],wri[1]) < 80:
+                                    objects[o_track_id] = [o_class_id, p_track_id]
+                                    print('objects[o_track_id]',objects[o_track_id])
 
             img = cv2.addWeighted(orig_img, 0.6, im0s[0], 0.4, 0) #720 1280
             idx = 0
@@ -404,16 +438,14 @@ def detect(opt, net, save_img=False):
                 # cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),(pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (255, 255, 0),2)
                 cv2.circle(img, (int(pose.bbox[0]) + int(pose.bbox[2]/2), int(pose.bbox[1]) + int(pose.bbox[3]/2)), 10, (0, 255, 0), -1) # test
                 #track id list 
-                if track and class_name == 'person':
+                if track :
                     pose.id = customer_id
-                    print('pose.id',pose.id)
                     # tracked person id (left top)
-                    # cv2.putText(img, 'person id: {} is being tracked '.format(pose.id), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
+                    cv2.putText(img, 'person id: {} is being tracked '.format(pose.id), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
                     cv2.putText(img, 'customer {}: {} is being tracked '.format(pose.id, customer_name), (5,35+idx), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 255),2)
-                    idx+=20
+                    # idx+=20
                 #person id (above bbx)
-                # cv2.putText(img, 'id: {} '.format(pose.id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
-                    cv2.putText(img, 'id: {} '.format(pose.id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+                cv2.putText(img, 'id: {} '.format(pose.id),(bbox_xyxy[0][0], bbox_xyxy[0][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
 
 ################# result #################
             terminate_t = timeit.default_timer()
@@ -423,6 +455,8 @@ def detect(opt, net, save_img=False):
             print('FPS',FPS)
 
     print('Done. (%.3fs)' % (time.time() - t0))
+
+#######################################################################################################################
 
 
 #######################################################################################################################
