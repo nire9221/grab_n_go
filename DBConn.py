@@ -13,6 +13,7 @@ class DB_Connection():
     def select_user(self):
         self.cursor.execute("select customer_id from CUSTOMERS where enter = 'True'")
         cnt = self.cursor.fetchone()
+        # print('cnt[0]',cnt[0])
         return cnt[0]
 
     def get_username(self,cid): 
@@ -31,9 +32,11 @@ class DB_Connection():
     #     name = self.cursor.fetchone()
     #     return name[0]
 
-    def insert_cart(self, customer_id, product_id, qty):
-        self.cursor.execute("INSERT INTO carts('cart_id, customer_id,product_id, cart_stock, cart_in) VALUES (cart_seq.nextval, :cid, :pid,:qty, systimestamp)",{"cid":customer_id,"pid":product_id,"qty":qty})
+    #def insert_cart(self, customer_id, product_id, qty):
+    #    self.cursor.execute("INSERT INTO carts('cart_id, customer_id,product_id, cart_stock, cart_in) VALUES (cart_seq.nextval, :cid, :pid,:qty, systimestamp)",{"cid":customer_id,"pid":product_id,"qty":qty})
 
+    def insert_into_cart(self, customer_id, product_id):
+        self.cursor.execute("insert into carts (cart_id, customer_id, product_id,cart_stock) values (cart_seq.nextval, :customer_id, :product_id, 1)",{"customer_id":customer_id,'product_id':product_id})
 
     def update_cart(self, customer_id, product_id, qty):
         self.cursor.execute("UPDATE carts SET cart_stock = :qty WHERE customer_id = :cid AND WHERE product_id = :pid)",{"cid":customer_id,"pid":product_id,"qty":qty})
