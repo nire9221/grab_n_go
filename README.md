@@ -22,8 +22,8 @@ test here
 --------------- 
 
 ## Reference </br>
-* [Yolov5](https://github.com/ultralytics/yolov5) </br>
-* [OpenPose](https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch)
+* [Yolov5](https://github.com/ultralytics/yolov5, "Yolov5") </br>
+* [OpenPose](https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch, "OpenPose")
 
 
 
