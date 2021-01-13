@@ -1,30 +1,33 @@
 # Grab_N_Go 
 ## About The Project
 grab N go is contact free store system mocking AmazonGo. 
+Using Intel Realsense to get frames from live video stream
+This code is only for detection part, and customer check-in & out system is 
+
 YOLOv5 + deepSORT + OpenPose + Oracle DB
 
 ## Environment
 * OS: Ubuntu 20.04
 * DB: Oracle
-* Tool (Editor Tool): VSCode
+* Editor Tool: VSCode
 * Language: Python 3.8.5
 
-* CUDA version 
-* cudnn version  Nvidia 
-* Intel Realsense version
+* GPU : GeForce RTX 2080
+* CPU : Intel(R) Core(™) i7-8700 CPU @ 3.20GHz
+* CUDA : 11.0
+* cudnn : 8.0.5
+* Intel Realsense : D455
 
 
 # Getting Started
 To get a local copy up and running follow these simple steps.
-## Prerequisites
-
 
 ## Installation
 1. clone the repo
 <pre><code>git clone https://github.com/nire9221/python_grab_n_go.git</code></pre>
 
-2. Install --- libraries // Pytorch, ...add....
-<pre><code> pip install </code></pre>
+2. Install libraries // Pytorch, ...add....
+<pre><code> pip install pytorch numpy opencv-python numba </code></pre>
 
 3. Download pre-trained weights
 <pre><code>https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing</code></pre>
