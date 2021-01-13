@@ -1,9 +1,10 @@
+--------------
 # Grab_N_Go
+
 ## About The Project
 grab N go is contact free store system mocking AmazonGo. 
 YOLOv5 + deepSORT + OpenPose + Oracle DB
 
---------------
 ## Environment
 * OS: Ubuntu 20.04
 * DB: Oracle
@@ -14,15 +15,13 @@ YOLOv5 + deepSORT + OpenPose + Oracle DB
 * cudnn version  Nvidia 
 * Intel Realsense version
 
---------------
+
 # Getting Started
 To get a local copy up and running follow these simple steps.
 ## Prerequisites
 
 
 ## Installation
-
-
 1. clone the repo
 <pre><code>git clone https://github.com/nire9221/python_grab_n_go.git</code></pre>
 
@@ -41,17 +40,16 @@ code here
 
 
 ## License
-> Distributed under the MIT License. See LICENSE for more information.
+Distributed under the MIT License. See LICENSE for more information.
 
 ## Contact 
 <!-- Actual text -->
-
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][3.2]][3].
 
 <!-- Icons -->
 
 [1.2]: http://i.imgur.com/wWzX9uB.png (twitter icon without padding)
-[2.2]: https://raw.githubusercontent.com/MartinHeinz/MartinHeinz/master/linkedin-3-16.png (LinkedIn icon without padding)
+[2.2]: https://www.linkedin.com/feed/?doFeedRefresh=true&nis=true&lipi=urn%3Ali%3Apage%3Ad_flagship3_feed%3BRIT8M9HnR%2FavwQUss6ErvA%3D%3D&licu=urn%3Ali%3Acontrol%3Ad_flagship3_feed-nav.homepage
 
 <!-- Links to your social media accounts -->
 
