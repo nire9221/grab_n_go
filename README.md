@@ -1,6 +1,6 @@
 # grab_n_go
 
->> grab N go is mocking AmazonGo project, 
+> grab N go is mocking AmazonGo project, 
 
 YOLOv5 + deepSORT + OpenPose + Oracle DB
 
