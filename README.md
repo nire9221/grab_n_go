@@ -18,6 +18,6 @@ download model : https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz
 </br>
 <hr/>
 reference </br>
-[Yolov5]: https://github.com/ultralytics/yolov5 "Yolov5"</br>
-[OpenPose]: https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch "OpenPose"
+[Yolov5]: (https://github.com/ultralytics/yolov5 "Yolov5")</br>
+[OpenPose]: (https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch "OpenPose")
 
