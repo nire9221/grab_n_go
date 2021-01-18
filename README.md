@@ -36,13 +36,9 @@ To get a local copy up and running follow these simple steps.
 
 ## demo
 * [object detection](https://youtu.be/0wqIGQrmuno "object detection")
+* [full video](https://youtu.be/PeilkLjJqE0 "grab n go")
 <br>
 <img src="detection.jpg" width="250" height="250">
-
-</br>
-
-* [full video](https://youtu.be/PeilkLjJqE0 "grab n go")
-
 
 
 ## License
