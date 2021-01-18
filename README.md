@@ -32,10 +32,10 @@ To get a local copy up and running follow these simple steps.
 <pre><code>https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing</code></pre>
 
 ## Documents 
-* [presentation https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing]
+* [presentation] https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing
 ## demo
-[![object detection](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa875XrQ9youvA1xmC-y2Vsdr58o_tY4CjeQ&usqp=CAU)](https://youtu.be/AHyonnNpUyM "object detection")
-[![full video](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa875XrQ9youvA1xmC-y2Vsdr58o_tY4CjeQ&usqp=CAU)](https://youtu.be/PeilkLjJqE0 "grab n go")
+[![object detection](image link here)](https://youtu.be/AHyonnNpUyM "object detection")
+[![full video](img link here )](https://youtu.be/PeilkLjJqE0 "grab n go")
 
 
 https://youtu.be/PeilkLjJqE0
