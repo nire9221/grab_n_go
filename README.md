@@ -1,6 +1,6 @@
 # Grab_N_Go 
 ## About The Project
-grab N go is contact free store system mocking AmazonGo.    
+Grab N Go is contact free store system mocking AmazonGo.    
 Intel Realsense is used for frames from live video stream.  
 This code is for object detection using Yolov5 with deepSORT and OpenPose.   
 For customer check-in & out system, please check the code here (https://github.com/MinsuKimhero/GrabNGo_CheckInNOut)     
@@ -22,7 +22,7 @@ For customer check-in & out system, please check the code here (https://github.c
 To get a local copy up and running follow these simple steps.
 
 ### Installation
-1. clone the repo
+1. Clone the repo
 <pre><code>git clone https://github.com/nire9221/python_grab_n_go.git</code></pre>
 
 2. Install libraries
@@ -35,8 +35,8 @@ To get a local copy up and running follow these simple steps.
 * [Presentation](https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing)
 
 ## demo
-* [object detection](https://youtu.be/0wqIGQrmuno "object detection")
-* [full video](https://youtu.be/PeilkLjJqE0 "grab n go")
+* [Object detection](https://youtu.be/0wqIGQrmuno "object detection")
+* [Full video](https://youtu.be/PeilkLjJqE0 "grab n go")
 <br>
 <img src="detection.jpg" width="250" height="250">
 
