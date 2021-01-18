@@ -35,10 +35,11 @@ To get a local copy up and running follow these simple steps.
 * [Presentation](https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing)
 ## demo
 
-[[http://url.to/image.png = 250x]]
-
 [![object detection]](https://youtu.be/0wqIGQrmuno "object detection")
 <img src="detection.jpg" width="250" height="250">
+
+</br>
+
 [![full video]](https://youtu.be/PeilkLjJqE0 "grab n go")
 <img src="full.png" width="250" height="250">
 
