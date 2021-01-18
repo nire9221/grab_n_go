@@ -34,8 +34,8 @@ To get a local copy up and running follow these simple steps.
 ## Documents 
 * [Presentation](https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing)
 ## demo
-[![object detection](https://drive.google.com/file/d/1K5JYFL2XAdTs5srS0eOyn3e-_HOua2P7/view?usp=sharing)](https://youtu.be/0wqIGQrmuno "object detection")
-[![full video](https://drive.google.com/file/d/1srhNlRvZTtDTMKLWsXVmmCQu5VU_BQwa/view?usp=sharing)](https://youtu.be/PeilkLjJqE0 "grab n go")
+[![object detection](detection.jpg)](https://youtu.be/0wqIGQrmuno "object detection")
+[![full video](full.png)](https://youtu.be/PeilkLjJqE0 "grab n go")
 
 
 ## License
