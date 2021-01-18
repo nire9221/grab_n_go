@@ -25,20 +25,18 @@ To get a local copy up and running follow these simple steps.
 1. clone the repo
 <pre><code>git clone https://github.com/nire9221/python_grab_n_go.git</code></pre>
 
-2. Install libraries // Pytorch, ...add....
+2. Install libraries
 <pre><code> pip install pytorch numpy opencv-python numba </code></pre>
 
 3. Download pre-trained weights
 <pre><code>https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing</code></pre>
 
 ## Documents 
-* [presentation] https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing
+* presentation [https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing]
 ## demo
 [![object detection](image link here)](https://youtu.be/AHyonnNpUyM "object detection")
 [![full video](img link here )](https://youtu.be/PeilkLjJqE0 "grab n go")
 
-
-https://youtu.be/PeilkLjJqE0
 
 ## License
 Distributed under the MIT License. See LICENSE for more information.
