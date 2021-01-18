@@ -32,10 +32,10 @@ To get a local copy up and running follow these simple steps.
 <pre><code>https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing</code></pre>
 
 ## Documents 
-* presentation [https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing]
+* [Presentation](https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing)
 ## demo
-[![object detection](image link here)](https://youtu.be/AHyonnNpUyM "object detection")
-[![full video](img link here )](https://youtu.be/PeilkLjJqE0 "grab n go")
+[![object detection](https://drive.google.com/file/d/1AhI4oFeX5dknt0Dh_yw80ALiDo0PtjBO/view?usp=sharing)](https://youtu.be/0wqIGQrmuno "object detection")
+[![full video](https://sharinaworld.com/wp-content/uploads/2018/08/videos.jpg)](https://youtu.be/PeilkLjJqE0 "grab n go")
 
 
 ## License
