@@ -37,8 +37,11 @@ To get a local copy up and running follow these simple steps.
 
 [[http://url.to/image.png = 250x]]
 
-[![object detection](detection.jpg = 250x)](https://youtu.be/0wqIGQrmuno "object detection")
-[![full video](full.png = 250x)](https://youtu.be/PeilkLjJqE0 "grab n go")
+[![object detection]](https://youtu.be/0wqIGQrmuno "object detection")
+<img src="detection.jpg" width="250" height="250">
+[![full video]](https://youtu.be/PeilkLjJqE0 "grab n go")
+<img src="full.png" width="250" height="250">
+
 
 
 ## License
