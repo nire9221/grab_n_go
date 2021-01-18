@@ -1,9 +1,9 @@
 # Grab_N_Go 
 ## About The Project
 grab N go is contact free store system mocking AmazonGo.    
-Intel Realsense is used to get frames from live video stream.  
-This code is only for object detection using Yolov5 with deepSORT and OpenPose.   
-For customer check-in & out system, here's the code (https://github.com/MinsuKimhero/GrabNGo_CheckInNOut)     
+Intel Realsense is used for frames from live video stream.  
+This code is for object detection using Yolov5 with deepSORT and OpenPose.   
+For customer check-in & out system, please check the code here (https://github.com/MinsuKimhero/GrabNGo_CheckInNOut)     
 
 ## Environment
 * OS: Ubuntu 20.04
