@@ -18,10 +18,10 @@ For customer check-in & out system, here's the code (https://github.com/MinsuKim
 * Intel Realsense : D455
 
 
-# Getting Started
+## Getting Started
 To get a local copy up and running follow these simple steps.
 
-## Installation
+### Installation
 1. clone the repo
 <pre><code>git clone https://github.com/nire9221/python_grab_n_go.git</code></pre>
 
@@ -31,13 +31,14 @@ To get a local copy up and running follow these simple steps.
 3. Download pre-trained weights
 <pre><code>https://drive.google.com/drive/folders/1BOML8YiJDzZMzbYhb8uOHhz76rMTu4zv?usp=sharing</code></pre>
 
-```
-code here
-```
+## Documents 
+* [presentation https://docs.google.com/presentation/d/1-UXe4Nd7L7BrPOYEuaEXfMdYLZTO0w4LFHUyaZj0GKM/edit?usp=sharing]
+## demo
+[![object detection](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa875XrQ9youvA1xmC-y2Vsdr58o_tY4CjeQ&usqp=CAU)](https://youtu.be/AHyonnNpUyM "object detection")
+[![full video](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa875XrQ9youvA1xmC-y2Vsdr58o_tY4CjeQ&usqp=CAU)](https://youtu.be/PeilkLjJqE0 "grab n go")
 
-### 
-<img src="/path/to/img.jpg" width="450px" height="300px" title="px(픽셀) 크기 설정" alt="test"></img><br/>
 
+https://youtu.be/PeilkLjJqE0
 
 ## License
 Distributed under the MIT License. See LICENSE for more information.
